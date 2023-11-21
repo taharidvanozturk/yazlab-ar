@@ -1,17 +1,3 @@
-/*
- * Copyright 2017 Google Inc. All Rights Reserved.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.google.ar.core.codelab.common.helpers;
 
 import android.app.Activity;
@@ -27,9 +13,9 @@ import android.view.WindowManager;
 import com.google.ar.core.Session;
 
 /**
- * Helper to track the display rotations. In particular, the 180 degree rotations are not notified
- * by the onSurfaceChanged() callback, and thus they require listening to the android display
- * events.
+ * Ekran rotasyonlarını takip etmek için yardımcı sınıf. Özellikle, 180 derece rotasyonları,
+ * onSurfaceChanged() geri çağrısı tarafından bildirilmez ve bu nedenle android ekran
+ * olaylarını dinlemeyi gerektirir.
  */
 public final class DisplayRotationHelper implements DisplayListener {
   private boolean viewportChanged;
@@ -40,9 +26,9 @@ public final class DisplayRotationHelper implements DisplayListener {
   private final CameraManager cameraManager;
 
   /**
-   * Constructs the DisplayRotationHelper but does not register the listener yet.
+   * DisplayRotationHelper'ı oluşturur ancak henüz dinleyiciyi kaydetmez.
    *
-   * @param context the Android {@link Context}.
+   * @param context Android {@link Context}.
    */
   public DisplayRotationHelper(Context context) {
     displayManager = (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
@@ -51,24 +37,24 @@ public final class DisplayRotationHelper implements DisplayListener {
     display = windowManager.getDefaultDisplay();
   }
 
-  /** Registers the display listener. Should be called from {@link Activity#onResume()}. */
+  /** Display dinleyicisini kaydeder.*/
   public void onResume() {
     displayManager.registerDisplayListener(this, null);
   }
 
-  /** Unregisters the display listener. Should be called from {@link Activity#onPause()}. */
+  /** Display dinleyicisini kaydeder.*/
   public void onPause() {
     displayManager.unregisterDisplayListener(this);
   }
 
   /**
-   * Records a change in surface dimensions. This will be later used by {@link
-   * #updateSessionIfNeeded(Session)}. Should be called from {@link
-   * android.opengl.GLSurfaceView.Renderer
-   * #onSurfaceChanged(javax.microedition.khronos.opengles.GL10, int, int)}.
+   * Yüzey boyutundaki bir değişikliği kaydeder. Bu daha sonra {@link #updateSessionIfNeeded(Session)} çağrısı
+   * veya {@link #onDisplayChanged(int)} sistem geri çağrısı tarafından kullanılacaktır.
+   * {@link android.opengl.GLSurfaceView.Renderer
+   * #onSurfaceChanged(javax.microedition.khronos.opengles.GL10, int, int)} içinden çağrılmalıdır.
    *
-   * @param width the updated width of the surface.
-   * @param height the updated height of the surface.
+   * @param width yüzeyin güncellenmiş genişliği.
+   * @param height yüzeyin güncellenmiş yüksekliği.
    */
   public void onSurfaceChanged(int width, int height) {
     viewportWidth = width;
@@ -77,12 +63,11 @@ public final class DisplayRotationHelper implements DisplayListener {
   }
 
   /**
-   * Updates the session display geometry if a change was posted either by {@link
-   * #onSurfaceChanged(int, int)} call or by {@link #onDisplayChanged(int)} system callback. This
-   * function should be called explicitly before each call to {@link Session#update()}. This
-   * function will also clear the 'pending update' (viewportChanged) flag.
+   * Eğer bir değişiklik postalandıysa, bu fonksiyon çağrılacak şekilde günceller
+   * session ekran geometrisini {@link Session#update()} çağrısından önce. Bu
+   * fonksiyon aynı zamanda 'bekleyen güncelleme' (viewportChanged) bayrağını da temizler.
    *
-   * @param session the {@link Session} object to update if display geometry changed.
+   * @param session ekran geometrisi değiştiyse güncellenecek {@link Session} nesnesi.
    */
   public void updateSessionIfNeeded(Session session) {
     if (viewportChanged) {
@@ -93,8 +78,7 @@ public final class DisplayRotationHelper implements DisplayListener {
   }
 
   /**
-   *  Returns the aspect ratio of the GL surface viewport while accounting for the display rotation
-   *  relative to the device camera sensor orientation.
+   *  GL yüzey viewport'unun ekran rotasyonunu dikkate alarak hesaplanmış en-boy oranını döndürür.
    */
   public float getCameraSensorRelativeViewportAspectRatio(String cameraId) {
     float aspectRatio;
@@ -109,30 +93,30 @@ public final class DisplayRotationHelper implements DisplayListener {
         aspectRatio = (float) viewportWidth / (float) viewportHeight;
         break;
       default:
-        throw new RuntimeException("Unhandled rotation: " + cameraSensorToDisplayRotation);
+        throw new RuntimeException("İşlenmemiş rotasyon: " + cameraSensorToDisplayRotation);
     }
     return aspectRatio;
   }
 
   /**
-   * Returns the rotation of the back-facing camera with respect to the display. The value is one of
-   * 0, 90, 180, 270.
+   * Belirtilen kamera için ekranla kamera sensörü arasındaki rotasyonu döndürür.
+   * Değerler 0, 90, 180, 270 olabilir.
    */
   public int getCameraSensorToDisplayRotation(String cameraId) {
     CameraCharacteristics characteristics;
     try {
       characteristics = cameraManager.getCameraCharacteristics(cameraId);
     } catch (CameraAccessException e) {
-      throw new RuntimeException("Unable to determine display orientation", e);
+      throw new RuntimeException("Ekran yönetimini belirleme başarısız", e);
     }
 
-    // Camera sensor orientation.
+    // Kamera sensörü orientasyonu.
     int sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
 
-    // Current display orientation.
+    // Geçerli ekran orientasyonu.
     int displayOrientation = toDegrees(display.getRotation());
 
-    // Make sure we return 0, 90, 180, or 270 degrees.
+    // 0, 90, 180 veya 270 derece döndürdüğümüzden emin olun.
     return (sensorOrientation - displayOrientation + 360) % 360;
   }
 
@@ -147,7 +131,7 @@ public final class DisplayRotationHelper implements DisplayListener {
       case Surface.ROTATION_270:
         return 270;
       default:
-        throw new RuntimeException("Unknown rotation " + rotation);
+        throw new RuntimeException("Bilinmeyen rotasyon " + rotation);
     }
   }
 

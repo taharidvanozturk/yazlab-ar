@@ -1,17 +1,3 @@
-// Copyright 2020 Google LLC
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 package com.google.ar.core.codelab.depth;
 
 import static android.opengl.GLES20.GL_CLAMP_TO_EDGE;
@@ -33,7 +19,7 @@ import android.media.Image;
 import com.google.ar.core.Frame;
 import com.google.ar.core.exceptions.NotYetAvailableException;
 
-/** Handle RG8 GPU texture containing a DEPTH16 depth image. */
+/** DEPTH16 derinlik görüntüsünü içeren RG8 GPU dokusunu işler. */
 public final class DepthTextureHandler {
 
   private int depthTextureId = -1;
@@ -41,8 +27,7 @@ public final class DepthTextureHandler {
   private int depthTextureHeight = -1;
 
   /**
-   * Creates and initializes the depth texture. This method needs to be called on a
-   * thread with a EGL context attached.
+   * Derinlik dokusunu oluşturur ve başlatır. Bu yöntem, bir EGL bağlamına sahip bir iş parçacığı üzerinde çağrılmalıdır.
    */
   public void createOnGlThread() {
     int[] textureId = new int[1];
@@ -56,8 +41,8 @@ public final class DepthTextureHandler {
   }
 
   /**
-   * Updates the depth texture with the content from acquireDepthImage().
-   * This method needs to be called on a thread with a EGL context attached.
+   * Derinlik dokusunu, acquireDepthImage() içeriği ile günceller.
+   * Bu yöntem, bir EGL bağlamına sahip bir iş parçacığı üzerinde çağrılmalıdır.
    */
   public void update(final Frame frame) {
     try {
@@ -66,18 +51,18 @@ public final class DepthTextureHandler {
       depthTextureHeight = depthImage.getHeight();
       glBindTexture(GL_TEXTURE_2D, depthTextureId);
       glTexImage2D(
-          GL_TEXTURE_2D,
-          0,
-          GL_RG8,
-          depthTextureWidth,
-          depthTextureHeight,
-          0,
-          GL_RG,
-          GL_UNSIGNED_BYTE,
-          depthImage.getPlanes()[0].getBuffer());
+              GL_TEXTURE_2D,
+              0,
+              GL_RG8,
+              depthTextureWidth,
+              depthTextureHeight,
+              0,
+              GL_RG,
+              GL_UNSIGNED_BYTE,
+              depthImage.getPlanes()[0].getBuffer());
       depthImage.close();
     } catch (NotYetAvailableException e) {
-      // This normally means that depth data is not available yet.
+      // Bu genellikle derinlik verilerinin henüz mevcut olmadığı anlamına gelir.
     }
   }
 

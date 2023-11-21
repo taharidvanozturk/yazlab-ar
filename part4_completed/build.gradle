@@ -18,7 +18,7 @@ android {
         // AR Optional apps must declare minSdkVersion >= 14.
         // AR Required apps must declare minSdkVersion >= 24.
         minSdkVersion 24
-        targetSdkVersion 28
+        targetSdkVersion 31
         versionCode 1
         versionName setVersionName()
     }
@@ -32,16 +32,17 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    namespace 'com.google.ar.core.codelab.depth'
 }
 
 dependencies {
     // ARCore library
     // Dependency version is rewritten at build time.
-    implementation 'com.google.ar:core:1.31.0'
+    implementation 'com.google.ar:core:1.40.0'
 
     // Obj - a simple Wavefront OBJ file loader
     // https://github.com/javagl/Obj
-    implementation 'de.javagl:obj:0.2.1'
+    implementation 'de.javagl:obj:0.4.0'
 
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.android.support:design:28.0.0'

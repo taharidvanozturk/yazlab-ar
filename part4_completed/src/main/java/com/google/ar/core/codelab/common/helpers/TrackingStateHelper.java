@@ -1,17 +1,3 @@
-/*
- * Copyright 2019 Google Inc. All Rights Reserved.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.google.ar.core.codelab.common.helpers;
 
 import android.app.Activity;
@@ -20,17 +6,17 @@ import com.google.ar.core.Camera;
 import com.google.ar.core.TrackingFailureReason;
 import com.google.ar.core.TrackingState;
 
-/** Gets human readibly tracking failure reasons and suggested actions. */
+/** Takip başarısızlık nedenlerini ve önerilen eylemleri insan tarafından okunabilir bir şekilde alır. */
 public final class TrackingStateHelper {
   private static final String INSUFFICIENT_FEATURES_MESSAGE =
-      "Can't find anything. Aim device at a surface with more texture or color.";
-  private static final String EXCESSIVE_MOTION_MESSAGE = "Moving too fast. Slow down.";
+          "Hiçbir şey bulunamıyor. Cihazı daha fazla dokulu veya renkli bir yüze doğrultun.";
+  private static final String EXCESSIVE_MOTION_MESSAGE = "Çok hızlı hareket ediliyor. Yavaşlayın.";
   private static final String INSUFFICIENT_LIGHT_MESSAGE =
-      "Too dark. Try moving to a well-lit area.";
+          "Çok karanlık. Aydınlık bir bölgeye taşının.";
   private static final String BAD_STATE_MESSAGE =
-      "Tracking lost due to bad internal state. Please try restarting the AR experience.";
+          "Kötü iç durum nedeniyle takip kayboldu. Lütfen AR deneyimini yeniden başlatmayı deneyin.";
   private static final String CAMERA_UNAVAILABLE_MESSAGE =
-      "Another app is using the camera. Tap on this app or try closing the other one.";
+          "Başka bir uygulama kamerayı kullanıyor. Bu uygulamaya dokunun veya diğerini kapatmayı deneyin.";
 
   private final Activity activity;
 
@@ -40,7 +26,7 @@ public final class TrackingStateHelper {
     this.activity = activity;
   }
 
-  /** Keep the screen unlocked while tracking, but allow it to lock when tracking stops. */
+  /** Takip sürdüğünde ekranın kilitli kalmasını sağlar, ancak takip durduğunda kilitlenmesine izin verir. */
   public void updateKeepScreenOnFlag(TrackingState trackingState) {
     if (trackingState == previousTrackingState) {
       return;
@@ -51,11 +37,11 @@ public final class TrackingStateHelper {
       case PAUSED:
       case STOPPED:
         activity.runOnUiThread(
-            () -> activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON));
+                () -> activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON));
         break;
       case TRACKING:
         activity.runOnUiThread(
-            () -> activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON));
+                () -> activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON));
         break;
     }
   }
@@ -76,6 +62,6 @@ public final class TrackingStateHelper {
       case CAMERA_UNAVAILABLE:
         return CAMERA_UNAVAILABLE_MESSAGE;
     }
-    return "Unknown tracking failure reason: " + reason;
+    return "Bilinmeyen takip başarısızlık nedeni: " + reason;
   }
 }

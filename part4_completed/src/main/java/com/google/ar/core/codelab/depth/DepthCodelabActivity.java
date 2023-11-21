@@ -1,17 +1,15 @@
 /*
- * Copyright 2020 Google Inc. All Rights Reserved.
+ * Telif Hakkı 2020 Google Inc. Tüm Hakları Saklıdır.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Apache Lisansı, Sürüm 2.0 (the "License");
+ * Bu dosyayı lisansın gerektirdiği şekilde kullanamazsınız.
+ * Lisansın bir kopyasını şu adresten alabilirsiniz:
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Uygulanabilir yasa gereği veya yazılı izin olmaksızın,
+ * Lisans altındaki yazılım "OLDUĞU GİBİ" TEMELİNDE, GARANTİSİZ VEYA KOŞULLU OLARAK
+ * DAĞITILIR. Belirli bir dil için belirli haklar ve sınırlamalar için lisansa bakın.
  */
 
 package com.google.ar.core.codelab.depth;
@@ -59,13 +57,13 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 /**
- * This is a simple example that shows how to create an augmented reality (AR) application using the
- * ARCore API. The application will allow the user to tap to place a 3d model of the Android robot.
+ * Bu, ARCore API'sını kullanarak artırılmış gerçeklik (AR) uygulaması oluşturan basit bir örnektir.
+ * Uygulama, kullanıcının dokunarak Android robotun 3D modelini yerleştirmesine izin verir.
  */
 public class DepthCodelabActivity extends AppCompatActivity implements GLSurfaceView.Renderer {
   private static final String TAG = DepthCodelabActivity.class.getSimpleName();
 
-  // Rendering. The Renderers are created here, and initialized when the GL surface is created.
+  // Rendering. Renderers burada oluşturulur ve GL yüzeyi oluşturulduğunda başlatılır.
   private GLSurfaceView surfaceView;
 
   private boolean installRequested;
@@ -82,18 +80,18 @@ public class DepthCodelabActivity extends AppCompatActivity implements GLSurface
   private final ObjectRenderer virtualObject = new ObjectRenderer();
   private final OcclusionObjectRenderer occludedVirtualObject = new OcclusionObjectRenderer();
 
-  // Temporary matrix allocated here to reduce number of allocations for each frame.
+  // Geçici matris, her bir çerçeve için yapılan işlemleri azaltmak için burada ayrılmıştır.
   private final float[] anchorMatrix = new float[16];
 
-  private static final String SEARCHING_PLANE_MESSAGE = "Please move around slowly...";
-  private static final String PLANES_FOUND_MESSAGE = "Tap to place objects.";
-  private static final String DEPTH_NOT_AVAILABLE_MESSAGE = "[Depth not supported on this device]";
+  private static final String SEARCHING_PLANE_MESSAGE = "Lütfen yavaşça etrafta dolaşın...";
+  private static final String PLANES_FOUND_MESSAGE = "Nesneleri yerleştirmek için dokunun.";
+  private static final String DEPTH_NOT_AVAILABLE_MESSAGE = "[Bu cihazda derinlik desteklenmiyor]";
 
-  // Anchors created from taps used for object placing with a given color.
+  // Dokunarak oluşturulan nesneler için renkli bir şekilde kullanılan Anchor'lar.
   private static final float[] OBJECT_COLOR = new float[] {139.0f, 195.0f, 74.0f, 255.0f};
   private final ArrayList<Anchor> anchors = new ArrayList<>();
 
-  private boolean showDepthMap = false;
+  private boolean showDepthMap = true;
   private boolean calculateUVTransform = true;
 
   @Override
@@ -103,14 +101,14 @@ public class DepthCodelabActivity extends AppCompatActivity implements GLSurface
     surfaceView = findViewById(R.id.surfaceview);
     displayRotationHelper = new DisplayRotationHelper(/*context=*/ this);
 
-    // Set up tap listener.
+    // Dokunma dinleyicisini kur.
     tapHelper = new TapHelper(/*context=*/ this);
     surfaceView.setOnTouchListener(tapHelper);
 
-    // Set up renderer.
+    // Renderer'ı kur.
     surfaceView.setPreserveEGLContextOnPause(true);
     surfaceView.setEGLContextClientVersion(2);
-    surfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0); // Alpha used for plane blending.
+    surfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0); // Alpha, düzlem karıştırma için kullanılır.
     surfaceView.setRenderer(this);
     surfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
     surfaceView.setWillNotDraw(false);
@@ -119,15 +117,15 @@ public class DepthCodelabActivity extends AppCompatActivity implements GLSurface
 
     final Button toggleDepthButton = (Button) findViewById(R.id.toggle_depth_button);
     toggleDepthButton.setOnClickListener(
-        view -> {
-          if (isDepthSupported) {
-            showDepthMap = !showDepthMap;
-            toggleDepthButton.setText(showDepthMap ? R.string.hide_depth : R.string.show_depth);
-          } else {
-            showDepthMap = false;
-            toggleDepthButton.setText(R.string.depth_not_available);
-          }
-        });
+            view -> {
+              if (isDepthSupported) {
+                showDepthMap = !showDepthMap;
+                toggleDepthButton.setText(showDepthMap ? R.string.hide_depth : R.string.show_depth);
+              } else {
+                showDepthMap = false;
+                toggleDepthButton.setText(R.string.depth_not_available);
+              }
+            });
   }
 
   @Override
@@ -146,14 +144,14 @@ public class DepthCodelabActivity extends AppCompatActivity implements GLSurface
             break;
         }
 
-        // ARCore requires camera permissions to operate. If we did not yet obtain runtime
-        // permission on Android M and above, now is a good time to ask the user for it.
+        // ARCore'un çalışması için kamera izinlerine ihtiyaç duyar. Android M ve üzerinde
+        // henüz çalışma zamanı izni almadıysak, şimdi kullanıcıdan istemek iyi bir zamandır.
         if (!CameraPermissionHelper.hasCameraPermission(this)) {
           CameraPermissionHelper.requestCameraPermission(this);
           return;
         }
 
-        // Creates the ARCore session.
+        // ARCore session oluştur.
         session = new Session(/* context= */ this);
         Config config = session.getConfig();
         isDepthSupported = session.isDepthModeSupported(Config.DepthMode.AUTOMATIC);
@@ -166,35 +164,35 @@ public class DepthCodelabActivity extends AppCompatActivity implements GLSurface
 
 
       } catch (UnavailableArcoreNotInstalledException
-          | UnavailableUserDeclinedInstallationException e) {
-        message = "Please install ARCore";
+               | UnavailableUserDeclinedInstallationException e) {
+        message = "Lütfen ARCore'u yükleyin";
         exception = e;
       } catch (UnavailableApkTooOldException e) {
-        message = "Please update ARCore";
+        message = "Lütfen ARCore'u güncelleyin";
         exception = e;
       } catch (UnavailableSdkTooOldException e) {
-        message = "Please update this app";
+        message = "Lütfen bu uygulamayı güncelleyin";
         exception = e;
       } catch (UnavailableDeviceNotCompatibleException e) {
-        message = "This device does not support AR";
+        message = "Bu cihaz AR'yi desteklemiyor";
         exception = e;
       } catch (Exception e) {
-        message = "Failed to create AR session";
+        message = "AR session oluşturma başarısız oldu";
         exception = e;
       }
 
       if (message != null) {
         messageSnackbarHelper.showError(this, message);
-        Log.e(TAG, "Exception creating session", exception);
+        Log.e(TAG, "Session oluşturulurken hata oluştu", exception);
         return;
       }
     }
 
-    // Note that order matters - see the note in onPause(), the reverse applies here.
+    // Not: Sıralamanın önemi vardır - onPause() içindeki notu görmek için, tersi burada geçerlidir.
     try {
       session.resume();
     } catch (CameraNotAvailableException e) {
-      messageSnackbarHelper.showError(this, "Camera not available. Try restarting the app.");
+      messageSnackbarHelper.showError(this, "Kamera kullanılamıyor. Uygulamayı yeniden başlatmayı deneyin.");
       session = null;
       return;
     }
@@ -207,9 +205,9 @@ public class DepthCodelabActivity extends AppCompatActivity implements GLSurface
   public void onPause() {
     super.onPause();
     if (session != null) {
-      // Note that the order matters - GLSurfaceView is paused first so that it does not try
-      // to query the session. If Session is paused before GLSurfaceView, GLSurfaceView may
-      // still call session.update() and get a SessionPausedException.
+      // Not: Sıralama önemlidir - GLSurfaceView önce durdurulur, böylece session'ı sorgulamaz.
+      // Eğer Session, GLSurfaceView'den önce durdurulursa, GLSurfaceView hala session.update() çağırabilir
+      // ve SessionPausedException alabilir.
       displayRotationHelper.onPause();
       surfaceView.onPause();
       session.pause();
@@ -219,10 +217,10 @@ public class DepthCodelabActivity extends AppCompatActivity implements GLSurface
   @Override
   public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] results) {
     if (!CameraPermissionHelper.hasCameraPermission(this)) {
-      Toast.makeText(this, "Camera permission is needed to run this application",
-          Toast.LENGTH_LONG).show();
+      Toast.makeText(this, "Bu uygulamayı çalıştırmak için kamera izni gereklidir",
+              Toast.LENGTH_LONG).show();
       if (!CameraPermissionHelper.shouldShowRequestPermissionRationale(this)) {
-        // Permission denied with checking "Do not ask again".
+        // "Tekrar Sorma" kontrol edilmişse izin reddedildi.
         CameraPermissionHelper.launchPermissionSettings(this);
       }
       finish();
@@ -239,12 +237,12 @@ public class DepthCodelabActivity extends AppCompatActivity implements GLSurface
   public void onSurfaceCreated(GL10 gl, EGLConfig config) {
     GLES20.glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
-    // Prepare the rendering objects. This involves reading shaders, so may throw an IOException.
+    // Rendering nesnelerini hazırla. Bu, shader'ları okuma içerir, bu nedenle IOException fırlatabilir.
     try {
-      // The depth texture is used for object occlusion and rendering.
+      // Derinlik dokusu, nesne gizliliği ve render için kullanılır.
       depthTexture.createOnGlThread();
 
-      // Create the texture and pass it to ARCore session to be filled during update().
+      // Texture oluştur ve ARCore session'a geç, update() sırasında doldurulması için.
       backgroundRenderer.createOnGlThread(/*context=*/ this);
       backgroundRenderer.createDepthShaders(/*context=*/ this, depthTexture.getDepthTexture());
 
@@ -254,13 +252,13 @@ public class DepthCodelabActivity extends AppCompatActivity implements GLSurface
       if (isDepthSupported) {
         occludedVirtualObject.createOnGlThread(/*context=*/ this, "models/andy.obj", "models/andy.png");
         occludedVirtualObject.setDepthTexture(
-            depthTexture.getDepthTexture(),
-            depthTexture.getDepthWidth(),
-            depthTexture.getDepthHeight());
+                depthTexture.getDepthTexture(),
+                depthTexture.getDepthWidth(),
+                depthTexture.getDepthHeight());
         occludedVirtualObject.setMaterialProperties(0.0f, 2.0f, 0.5f, 6.0f);
       }
     } catch (IOException e) {
-      Log.e(TAG, "Failed to read an asset file", e);
+      Log.e(TAG, "Asset dosyası okuma başarısız oldu", e);
     }
   }
 
@@ -272,22 +270,21 @@ public class DepthCodelabActivity extends AppCompatActivity implements GLSurface
 
   @Override
   public void onDrawFrame(GL10 gl) {
-    // Clear screen to notify driver it should not load any pixels from previous frame.
+    // Önceki çerçeveden herhangi bir pikselin yüklenmemesi için ekranı temizle.
     GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 
     if (session == null) {
       return;
     }
-    // Notify ARCore session that the view size changed so that the perspective matrix and
-    // the video background can be properly adjusted.
+    // ARCore session'ına görünüm boyutunun değiştiğini bildir, bu nedenle perspektif matrisi ve
+    // video arka planı uygun şekilde ayarlanabilir.
     displayRotationHelper.updateSessionIfNeeded(session);
 
     try {
       session.setCameraTextureName(backgroundRenderer.getTextureId());
 
-      // Obtain the current frame from ARSession. When the configuration is set to
-      // UpdateMode.BLOCKING (it is by default), this will throttle the rendering to the
-      // camera framerate.
+      // ARSession'dan güncel çerçeveyi al. Konfigürasyon UpdateMode.BLOCKING olarak ayarlandığında
+      // (varsayılan olarak), bu, render'ı kameranın kare hızına ayarlar.
       Frame frame = session.update();
       Camera camera = frame.getCamera();
 
@@ -296,46 +293,45 @@ public class DepthCodelabActivity extends AppCompatActivity implements GLSurface
         float[] transform = getTextureTransformMatrix(frame);
         occludedVirtualObject.setUvTransformMatrix(transform);
       }
-
-      // Retrieves the latest depth image for this frame.
+// Bu çerçeve için en son derinlik görüntüsünü alır.
       if (isDepthSupported) {
         depthTexture.update(frame);
       }
 
-      // Handle one tap per frame.
+// Her karede bir dokunma işlemini ele alır.
       handleTap(frame, camera);
 
-      // If frame is ready, render camera preview image to the GL surface.
+// Eğer çerçeve hazırsa, kamera önizleme görüntüsünü GL yüzeyine çizer.
       backgroundRenderer.draw(frame);
       if (showDepthMap) {
         backgroundRenderer.drawDepth(frame);
       }
 
-      // Keep the screen unlocked while tracking, but allow it to lock when tracking stops.
+// Ekrana dokunulduğunda ekranın kilidini açık tut, ancak takip durduğunda kilitlemeye izin ver.
       trackingStateHelper.updateKeepScreenOnFlag(camera.getTrackingState());
 
-      // If not tracking, don't draw 3D objects, show tracking failure reason instead.
+// Takip yapılmıyorsa, 3D nesneleri çizme; takip hatası durumunu göster.
       if (camera.getTrackingState() == TrackingState.PAUSED) {
         messageSnackbarHelper.showMessage(
-            this, TrackingStateHelper.getTrackingFailureReasonString(camera));
+                this, TrackingStateHelper.getTrackingFailureReasonString(camera));
         return;
       }
 
-      // Get projection matrix.
+// Projeksiyon matrisini al.
       float[] projmtx = new float[16];
       camera.getProjectionMatrix(projmtx, 0, 0.1f, 100.0f);
 
-      // Get camera matrix and draw.
+// Kamera matrisini al ve çiz.
       float[] viewmtx = new float[16];
       camera.getViewMatrix(viewmtx, 0);
 
-      // Compute lighting from average intensity of the image.
-      // The first three components are color scaling factors.
-      // The last one is the average pixel intensity in gamma space.
+// Görüntünün ortalama yoğunluğundan aydınlatmayı hesapla.
+// İlk üç bileşen renk ölçekleme faktörleridir.
+// Sonuncusu gamma uzayındaki ortalama piksel yoğunluğudur.
       final float[] colorCorrectionRgba = new float[4];
       frame.getLightEstimate().getColorCorrection(colorCorrectionRgba, 0);
 
-      // No tracking error at this point. Inform user of what to do based on if planes are found.
+// Bu noktada takip hatası yok. Uçaklar bulunup bulunmadığına bağlı olarak kullanıcıya ne yapılacağını bildirin.
       String messageToShow = "";
       if (hasTrackingPlane()) {
         messageToShow = PLANES_FOUND_MESSAGE;
@@ -347,17 +343,17 @@ public class DepthCodelabActivity extends AppCompatActivity implements GLSurface
       }
       messageSnackbarHelper.showMessage(this, messageToShow);
 
-      // Visualize anchors created by touch.
+// Dokunma ile oluşturulan anchor'ları görselleştir.
       float scaleFactor = 1.0f;
       for (Anchor anchor : anchors) {
         if (anchor.getTrackingState() != TrackingState.TRACKING) {
           continue;
         }
-        // Get the current pose of an Anchor in world space. The Anchor pose is updated
-        // during calls to session.update() as ARCore refines its estimate of the world.
+        // Bir Anchor'ın dünya uzayındaki mevcut durumunu al. Anchor pozisyonu
+        // ARCore'un dünya tahminini iyileştirdikçe güncellenir.
         anchor.getPose().toMatrix(anchorMatrix, 0);
 
-        // Update and draw the model and its shadow.
+        // Model ve gölgesini güncelle ve çiz.
         if (isDepthSupported) {
           occludedVirtualObject.updateModelMatrix(anchorMatrix, scaleFactor);
           occludedVirtualObject.draw(viewmtx, projmtx, colorCorrectionRgba, OBJECT_COLOR);
@@ -368,36 +364,36 @@ public class DepthCodelabActivity extends AppCompatActivity implements GLSurface
       }
 
     } catch (Throwable t) {
-      // Avoid crashing the application due to unhandled exceptions.
-      Log.e(TAG, "Exception on the OpenGL thread", t);
+// İstisnasız durumlar nedeniyle uygulamanın çökmesini önleyin.
+      Log.e(TAG, "OpenGL thread üzerinde istisna", t);
     }
   }
 
-  // Handle only one tap per frame, as taps are usually low frequency compared to frame rate.
+  // Yalnızca bir dokunma işlemi işle, çünkü dokunmalar genellikle kare hızına göre düşük frekanstır.
   private void handleTap(Frame frame, Camera camera) {
     MotionEvent tap = tapHelper.poll();
     if (tap != null && camera.getTrackingState() == TrackingState.TRACKING) {
       for (HitResult hit : frame.hitTest(tap)) {
-        // Check if any plane was hit, and if it was hit inside the plane polygon
+        // Herhangi bir uçağın vurulup vurulmadığını ve vurulan yerin uçak çokgeni içinde olup olmadığını kontrol edin.
         Trackable trackable = hit.getTrackable();
-        // Creates an anchor if a plane or an oriented point was hit.
+        // Bir uçağa veya yönlendirilmiş bir noktaya vurulduysa bir anchor oluşturun.
         if ((trackable instanceof Plane
                 && ((Plane) trackable).isPoseInPolygon(hit.getHitPose())
                 && (calculateDistanceToPlane(hit.getHitPose(), camera.getPose()) > 0))
-            || (trackable instanceof Point
+                || (trackable instanceof Point
                 && ((Point) trackable).getOrientationMode()
-                    == OrientationMode.ESTIMATED_SURFACE_NORMAL)) {
-          // Hits are sorted by depth. Consider only closest hit on a plane or oriented point.
-          // Cap the number of objects created. This avoids overloading both the
-          // rendering system and ARCore.
+                == OrientationMode.ESTIMATED_SURFACE_NORMAL)) {
+          // Vurulanları derinliğine göre sırala. Sadece uçağa veya yönlendirilmiş bir noktaya en yakın vuruşu düşünün.
+          // Oluşturulan nesnelerin sayısını sınırlayın. Bu, hem
+          // rendering sistemi hem de ARCore'u aşırı yüklemekten kaçınır.
           if (anchors.size() >= 20) {
             anchors.get(0).detach();
             anchors.remove(0);
           }
 
-          // Adding an Anchor tells ARCore that it should track this position in
-          // space. This anchor is created on the Plane to place the 3D model
-          // in the correct position relative both to the world and to the plane.
+          // Bir Anchor eklemek, ARCore'un bu konumu
+          // uzayda takip etmesi gerektiğini belirtir. Bu anchor, 3D modeli
+          // hem dünya hem de uçağa göre doğru konumlandırmak için Plane üzerinde oluşturulur.
           anchors.add(hit.createAnchor());
           break;
         }
@@ -405,7 +401,7 @@ public class DepthCodelabActivity extends AppCompatActivity implements GLSurface
     }
   }
 
-  // Checks if we detected at least one plane.
+  // En az bir uçağın algılanıp algılanmadığını kontrol eder.
   private boolean hasTrackingPlane() {
     for (Plane plane : session.getAllTrackables(Plane.class)) {
       if (plane.getTrackingState() == TrackingState.TRACKING) {
@@ -415,41 +411,39 @@ public class DepthCodelabActivity extends AppCompatActivity implements GLSurface
     return false;
   }
 
-  // Calculate the normal distance to plane from cameraPose, the given planePose should have y axis
-  // parallel to plane's normal, for example plane's center pose or hit test pose.
+  // cameraPose'dan planePose'a kadar olan düzleme normal mesafeyi hesaplar, verilen planePose'un y ekseni
+// düzlemin normaliyle paralel olmalıdır, örneğin düzlemin merkezi durumu veya vuruş testi durumu.
   private static float calculateDistanceToPlane(Pose planePose, Pose cameraPose) {
     float[] normal = new float[3];
     float cameraX = cameraPose.tx();
     float cameraY = cameraPose.ty();
     float cameraZ = cameraPose.tz();
-    // Get transformed Y axis of plane's coordinate system.
+// Düzlemin koordinat sisteminin dönüştürülmüş Y eksenini alın.
     planePose.getTransformedAxis(1, 1.0f, normal, 0);
-    // Compute dot product of plane's normal with vector from camera to plane center.
+// Düzlemin normali ile kameradan düzleme merkezine giden vektörün iç çarpımını hesaplayın.
     return (cameraX - planePose.tx()) * normal[0]
-        + (cameraY - planePose.ty()) * normal[1]
-        + (cameraZ - planePose.tz()) * normal[2];
+            + (cameraY - planePose.ty()) * normal[1]
+            + (cameraZ - planePose.tz()) * normal[2];
   }
 
   /**
-   * This method returns a transformation matrix that when applied to screen space uvs makes them
-   * match correctly with the quad texture coords used to render the camera feed. It takes into
-   * account device orientation.
+   * Bu yöntem, ekran uzayındaki uvs'yi doğru bir şekilde eşleştirmek için kullanılan bir dönüşüm matrisi döndürür.
+   * Cihazın yönelimini dikkate alır.
    */
   private static float[] getTextureTransformMatrix(Frame frame) {
     float[] frameTransform = new float[6];
     float[] uvTransform = new float[9];
-    // XY pairs of coordinates in NDC space that constitute the origin and points along the two
-    // principal axes.
+// NDC uzayındaki orijin ve iki ana eksenden oluşan koordinat çiftleri.
     float[] ndcBasis = {0, 0, 1, 0, 0, 1};
 
-    // Temporarily store the transformed points into outputTransform.
+// Geçici olarak dönüştürülmüş noktaları outputTransform içinde depolayın.
     frame.transformCoordinates2d(
-        Coordinates2d.OPENGL_NORMALIZED_DEVICE_COORDINATES,
-        ndcBasis,
-        Coordinates2d.TEXTURE_NORMALIZED,
-        frameTransform);
+            Coordinates2d.OPENGL_NORMALIZED_DEVICE_COORDINATES,
+            ndcBasis,
+            Coordinates2d.TEXTURE_NORMALIZED,
+            frameTransform);
 
-    // Convert the transformed points into an affine transform and transpose it.
+// Dönüştürülmüş noktaları bir afin dönüşüme çevirin ve transpoze edin.
     float ndcOriginX = frameTransform[0];
     float ndcOriginY = frameTransform[1];
     uvTransform[0] = frameTransform[2] - ndcOriginX;
