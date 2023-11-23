@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <resources>
-  <string name="app_name">Depth Codelab</string>
+  <string name="app_name">AR Yazlab</string>
   <string translatable="false" name="show_depth">Derinliği Göster</string>
   <string translatable="false" name="hide_depth">Derinliği Gizle</string>
   <string translatable="false" name="depth_not_available">Derinlik Özelliği Kullanılabilir Değil</string>

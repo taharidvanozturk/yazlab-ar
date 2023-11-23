@@ -11,7 +11,7 @@ def setVersionName = { ->
 }
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 31
     defaultConfig {
         applicationId "com.google.ar.core.codelab.depth"
 
